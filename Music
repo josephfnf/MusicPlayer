@@ -1,28 +1,28 @@
 -- Inicialização do Rayfield UI
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
-    Name = "Menor 🔥",
-    LoadingTitle = "🔥 Vc que fez kkkk",
-    LoadingSubtitle = "pega no meu pau aqui é brasil porra",
+    Name = "Reach",
+    LoadingTitle = "Loading 89/100",
+    LoadingSubtitle = "100/100 Finishing...",
     ConfigurationSaving = {
        Enabled = true,
        FolderName = nil,
        FileName = "trojan"
     },
     Discord = {
-       Enabled = false,
+       Enabled = true,
        Invite = "discord.gg/pornhub",
        RememberJoins = true
     },
     KeySystem = true,
     KeySettings = {
-       Title = "Keyzinha ",
-       Subtitle = "vc sabe qual é né",
-       Note = "nao tem jeito, pega com o rei",
+       Title = "Key System",
+       Subtitle = "Put the key",
+       Note = "1234",
        FileName = "trojan2",
-       SaveKey = true,
+       SaveKey = false,
        GrabKeyFromSite = false,
-       Key = {"1712"}
+       Key = {"1234"}
     }
 })
 
@@ -31,19 +31,19 @@ local ReachTab = Window:CreateTab("Reach", 4483362458)
 
 -- Tabela para armazenar os valores de alcance para cada parte do corpo
 local reachValues = {
-    ["Head"] = 20,
-    ["Right Leg"] = 20,
-    ["Left Leg"] = 20,
-    ["Right Arm"] = 20,
-    ["Left Arm"] = 20,
-    ["Torso"] = 20
+    ["Head"] = 5,
+    ["Right Leg"] = 5,
+    ["Left Leg"] = 5,
+    ["Right Arm"] = 5,
+    ["Left Arm"] = 5,
+    ["Torso"] = 5
 }
 
 -- Função para criar sliders para cada parte do corpo
 for partName, defaultValue in pairs(reachValues) do
     ReachTab:CreateSlider({
         Name = "Reach - " .. partName,
-        Range = {1, 100},
+        Range = {1, 99},
         Increment = 1,
         Suffix = " studs",
         CurrentValue = defaultValue,
