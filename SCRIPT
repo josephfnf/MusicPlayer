@@ -5,7 +5,7 @@ local player = Players.LocalPlayer
 -- Lista de nicks permitidos
 local whitelist = {
     ["TheDev_Mixxel"] = true,
-    ["RIAN_ytb01"] = true,
+    ["RIAN_ytb013"] = true,
 }
 
 -- Verifica o nick
