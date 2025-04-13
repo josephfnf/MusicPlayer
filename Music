@@ -1,0 +1,105 @@
+-- Inicialização do Rayfield UI
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local Window = Rayfield:CreateWindow({
+    Name = "Menor 🔥",
+    LoadingTitle = "🔥 Vc que fez kkkk",
+    LoadingSubtitle = "pega no meu pau aqui é brasil porra",
+    ConfigurationSaving = {
+       Enabled = true,
+       FolderName = nil,
+       FileName = "trojan"
+    },
+    Discord = {
+       Enabled = false,
+       Invite = "discord.gg/pornhub",
+       RememberJoins = true
+    },
+    KeySystem = true,
+    KeySettings = {
+       Title = "Keyzinha ",
+       Subtitle = "vc sabe qual é né",
+       Note = "nao tem jeito, pega com o rei",
+       FileName = "trojan2",
+       SaveKey = true,
+       GrabKeyFromSite = false,
+       Key = {"1712"}
+    }
+})
+
+-- Criação da aba "Reach"
+local ReachTab = Window:CreateTab("Reach", 4483362458)
+
+-- Tabela para armazenar os valores de alcance para cada parte do corpo
+local reachValues = {
+    ["Head"] = 20,
+    ["Right Leg"] = 20,
+    ["Left Leg"] = 20,
+    ["Right Arm"] = 20,
+    ["Left Arm"] = 20,
+    ["Torso"] = 20
+}
+
+-- Função para criar sliders para cada parte do corpo
+for partName, defaultValue in pairs(reachValues) do
+    ReachTab:CreateSlider({
+        Name = "Reach - " .. partName,
+        Range = {1, 100},
+        Increment = 1,
+        Suffix = " studs",
+        CurrentValue = defaultValue,
+        Flag = "Reach_" .. partName,
+        Callback = function(Value)
+            reachValues[partName] = Value
+        end,
+    })
+end
+
+-- Função para atualizar a lista de objetos interativos (bolas)
+local balls = {}
+local lastRefreshTime = os.time()
+function refreshBalls(force)
+    if not force and (lastRefreshTime + 2 > os.time()) then
+        print("Atualização muito recente")
+        return
+    end
+    lastRefreshTime = os.time()
+    table.clear(balls)
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v.Name == "TPS" or v.Name == "ESA" or v.Name == "MRS" or v.Name == "PRS" or v.Name == "MPS" then
+            task.wait()
+            table.insert(balls, v)
+        end
+    end
+end
+
+-- Inicializa a lista de bolas
+refreshBalls(true)
+
+-- Conexão com o serviço de entrada do usuário
+local UserInputService = game:GetService("UserInputService")
+local player = game:GetService("Players").LocalPlayer
+
+UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    if gameProcessedEvent then return end
+
+    -- Atualiza a lista de bolas
+    refreshBalls(false)
+
+    -- Itera sobre cada parte do corpo configurada
+    for partName, reach in pairs(reachValues) do
+        local bodyPart = player.Character:FindFirstChild(partName)
+        if bodyPart then
+            for _, descendant in pairs(bodyPart:GetDescendants()) do
+                if descendant.Name == "TouchInterest" and descendant.Parent then
+                    for _, ball in pairs(balls) do
+                        if (ball.Position - bodyPart.Position).Magnitude < reach then
+                            firetouchinterest(ball, descendant.Parent, 0)
+                            firetouchinterest(ball, descendant.Parent, 1)
+                            break
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
