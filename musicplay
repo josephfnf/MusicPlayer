@@ -1,20 +1,20 @@
--- Detecta o jogador
+-- Detect the player
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
--- Lista de nicks permitidos
+-- Whitelist of allowed players
 local whitelist = {
     ["roblox"] = true,
     ["RIAN_ytb01"] = true,
 }
 
--- Verifica o nick
+-- Check if the player is on the whitelist
 if not whitelist[player.Name] then
     player:Kick("NOT WHITELISTED")
-    return -- Impede o script de continuar
+    return -- Prevent script from continuing
 end
 
--- Inicialização do Rayfield UI
+-- Initialize Rayfield UI
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
     Name = "Reach",
@@ -42,10 +42,10 @@ local Window = Rayfield:CreateWindow({
     }
 })
 
--- Criação da aba "Reach"
+-- Create the "Reach" tab
 local ReachTab = Window:CreateTab("Reach", 4483362458)
 
--- Tabela para armazenar os valores de alcance para cada parte do corpo
+-- Reach values for body parts
 local reachValues = {
     ["Head"] = 1,
     ["Right Leg"] = 1,
@@ -55,7 +55,7 @@ local reachValues = {
     ["Torso"] = 1
 }
 
--- Função para criar sliders para cada parte do corpo
+-- Create sliders for each body part
 for partName, defaultValue in pairs(reachValues) do
     ReachTab:CreateSlider({
         Name = "Reach - " .. partName,
@@ -70,12 +70,12 @@ for partName, defaultValue in pairs(reachValues) do
     })
 end
 
--- Função para atualizar a lista de objetos interativos (bolas)
+-- Function to update the list of interactive objects (balls)
 local balls = {}
 local lastRefreshTime = os.time()
 function refreshBalls(force)
     if not force and (lastRefreshTime + 2 > os.time()) then
-        print("Atualização muito recente")
+        print("Update too recent")
         return
     end
     lastRefreshTime = os.time()
@@ -88,16 +88,16 @@ function refreshBalls(force)
     end
 end
 
--- Inicializa a lista de bolas
+-- Initialize ball list
 refreshBalls(true)
 
--- Criação da aba "Visualizer"
+-- Create the "Visualizer" tab
 local VisualizerTab = Window:CreateTab("Visualizer", 4483362458)
 
--- Variável para ativar/desativar visualizador
+-- Variables to enable/disable the visualizer
 local visualizerEnabled = true
 
--- Tabela para armazenar quais partes estão ativas no cálculo
+-- Active body parts for calculation
 local activeParts = {
     ["Head"] = true,
     ["Right Leg"] = true,
@@ -107,10 +107,10 @@ local activeParts = {
     ["Torso"] = true
 }
 
--- Função para criar toggles para cada parte do corpo
+-- Create toggles for each body part
 for partName, _ in pairs(activeParts) do
     VisualizerTab:CreateToggle({
-        Name = "Incluir " .. partName,
+        Name = "Include " .. partName,
         CurrentValue = true,
         Flag = "Include_" .. partName,
         Callback = function(Value)
@@ -119,7 +119,7 @@ for partName, _ in pairs(activeParts) do
     })
 end
 
--- Função para criar a bola visualizadora
+-- Function to create the visualizer ball
 local function createVisualizerBall()
     local ball = Instance.new("Part")
     ball.Size = Vector3.new(1, 1, 1)
@@ -128,7 +128,7 @@ local function createVisualizerBall()
     ball.Anchored = true
     ball.CanCollide = false
     ball.Transparency = 0.8
-    ball.Color = Color3.fromRGB(255, 255, 255)
+    ball.Color = Color3.fromRGB(255, 255, 255)  -- Initial color (white)
     ball.Name = "VisualizerBall"
     ball.Parent = workspace
     return ball
@@ -136,7 +136,58 @@ end
 
 local visualizerBall = createVisualizerBall()
 
--- Atualiza posição da bola visualizadora constantemente
+-- Color Picker for changing ball color (Hex/RGB style)
+VisualizerTab:CreateColorPicker({
+    Name = "Ball Color",
+    Color = Color3.fromRGB(255, 255, 255), -- Default color (white)
+    Flag = "BallColor",
+    Callback = function(color)
+        visualizerBall.Color = color -- Change the color of the visualizer ball
+    end,
+})
+
+-- Toggle to enable/disable the visualizer
+VisualizerTab:CreateToggle({
+    Name = "Enable Visualizer",
+    CurrentValue = true,
+    Flag = "VisualizerToggle",
+    Callback = function(Value)
+        visualizerEnabled = Value
+        if not visualizerEnabled then
+            visualizerBall.Transparency = 1  -- Make the ball invisible when visualizer is off
+        else
+            visualizerBall.Transparency = 0.8  -- Make the ball visible when visualizer is on
+        end
+    end,
+})
+
+-- Function for color cycle (changes the color of the ball continuously)
+local function changeColorOverTime()
+    while visualizerEnabled do
+        visualizerBall.Color = Color3.fromRGB(math.random(0, 255), math.random(0, 255), math.random(0, 255)) -- Random color
+        wait(1) -- Wait 1 second before changing the color again
+    end
+end
+
+-- Toggle for enabling/disabling the RGB color cycle
+VisualizerTab:CreateToggle({
+    Name = "RGB Color Cycle",
+    CurrentValue = false,
+    Flag = "ColorCycleToggle",
+    Callback = function(Value)
+        if Value then
+            -- Start the color cycle when enabled
+            spawn(function()
+                changeColorOverTime()
+            end)
+        else
+            -- Stop the color cycle when disabled
+            visualizerBall.Color = Color3.fromRGB(255, 255, 255)  -- Set to default white color
+        end
+    end,
+})
+
+-- Update the position of the visualizer ball continuously
 local RunService = game:GetService("RunService")
 RunService.Heartbeat:Connect(function()
     if visualizerEnabled and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
@@ -157,53 +208,15 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
--- Toggle para ativar/desativar visualizador
-VisualizerTab:CreateToggle({
-    Name = "Ativar Visualizer",
-    CurrentValue = true,
-    Flag = "VisualizerToggle",
-    Callback = function(Value)
-        visualizerEnabled = Value
-        visualizerBall.Transparency = Value and Rayfield.Flags["BallTransparency"].CurrentValue or 1
-    end,
-})
-
--- Color Picker RGB (hex) para mudar cor da bola
-VisualizerTab:CreateColorPicker({
-    Name = "Cor da Bola",
-    Color = Color3.fromRGB(255, 255, 255),
-    Flag = "BallColor",
-    Callback = function(color)
-        visualizerBall.Color = color
-    end,
-})
-
--- Slider para mudar a transparência da bola
-VisualizerTab:CreateSlider({
-    Name = "Transparência da Bola",
-    Range = {0, 1},
-    Increment = 0.01,
-    Suffix = "",
-    CurrentValue = 0.8,
-    Flag = "BallTransparency",
-    Callback = function(Value)
-        if visualizerEnabled then
-            visualizerBall.Transparency = Value
-        end
-    end,
-})
-
--- Conexão com o serviço de entrada do usuário
+-- User input connection
 local UserInputService = game:GetService("UserInputService")
-local player = game:GetService("Players").LocalPlayer
-
 UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
     if gameProcessedEvent then return end
 
-    -- Atualiza a lista de bolas
+    -- Update the list of balls
     refreshBalls(false)
 
-    -- Itera sobre cada parte do corpo configurada
+    -- Iterate over each active body part
     for partName, reach in pairs(reachValues) do
         local bodyPart = player.Character:FindFirstChild(partName)
         if bodyPart then
