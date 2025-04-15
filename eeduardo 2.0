@@ -1,0 +1,236 @@
+-- Detect the player
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- Whitelist of allowed players
+local whitelist = {
+    ["dauisfajfsg"] = true,
+    ["RIAN_ytb01"] = true,
+}
+
+-- Check if the player is on the whitelist
+if not whitelist[player.Name] then
+    player:Kick("NOT WHITELISTED")
+    return -- Prevent script from continuing
+end
+
+-- Initialize Rayfield UI
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local Window = Rayfield:CreateWindow({
+    Name = "eeduardoo gui",
+    LoadingTitle = "hi eeduardoo",
+    LoadingSubtitle = "100/100 Finishing...",
+    ConfigurationSaving = {
+       Enabled = true,
+       FolderName = nil,
+       FileName = "trojan"
+    },
+    Discord = {
+       Enabled = true,
+       Invite = "discord.gg/1231241f",
+       RememberJoins = true
+    },
+    KeySystem = true,
+    KeySettings = {
+       Title = "eeduardo, are you?",
+       Subtitle = "Put the key",
+       Note = "are you a buyer?",
+       FileName = "trojan2",
+       SaveKey = false,
+       GrabKeyFromSite = false,
+       Key = {"UNTITLED"}
+    }
+})
+
+-- Create the "Reach" tab
+local ReachTab = Window:CreateTab("Reach", 4483362458)
+
+-- Reach values for body parts
+local reachValues = {
+    ["Head"] = 1,
+    ["Right Leg"] = 1,
+    ["Left Leg"] = 1,
+    ["Right Arm"] = 1,
+    ["Left Arm"] = 1,
+    ["Torso"] = 1
+}
+
+-- Create sliders for each body part
+for partName, defaultValue in pairs(reachValues) do
+    ReachTab:CreateSlider({
+        Name = "Reach - " .. partName,
+        Range = {1, 99},
+        Increment = 1,
+        Suffix = " studs",
+        CurrentValue = defaultValue,
+        Flag = "Reach_" .. partName,
+        Callback = function(Value)
+            reachValues[partName] = Value
+        end,
+    })
+end
+
+-- Function to update the list of interactive objects (balls)
+local balls = {}
+local lastRefreshTime = os.time()
+function refreshBalls(force)
+    if not force and (lastRefreshTime + 2 > os.time()) then
+        print("Update too recent")
+        return
+    end
+    lastRefreshTime = os.time()
+    table.clear(balls)
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v.Name == "TPS" or v.Name == "ESA" or v.Name == "MRS" or v.Name == "SSS" or v.Name == "PRS" or v.Name == "MPS" or v.Name == "AIFA" or v.Name == "RBZ" then
+            task.wait()
+            table.insert(balls, v)
+        end
+    end
+end
+
+-- Initialize ball list
+refreshBalls(true)
+
+-- Create the "Visualizer" tab
+local VisualizerTab = Window:CreateTab("Visualizer", 4483362458)
+
+-- Variables to enable/disable the visualizer
+local visualizerEnabled = true
+
+-- Active body parts for calculation
+local activeParts = {
+    ["Head"] = true,
+    ["Right Leg"] = true,
+    ["Left Leg"] = true,
+    ["Right Arm"] = true,
+    ["Left Arm"] = true,
+    ["Torso"] = true
+}
+
+-- Create toggles for each body part
+for partName, _ in pairs(activeParts) do
+    VisualizerTab:CreateToggle({
+        Name = "Include " .. partName,
+        CurrentValue = true,
+        Flag = "Include_" .. partName,
+        Callback = function(Value)
+            activeParts[partName] = Value
+        end,
+    })
+end
+
+-- Function to create the visualizer ball
+local function createVisualizerBall()
+    local ball = Instance.new("Part")
+    ball.Size = Vector3.new(1, 1, 1)
+    ball.Shape = Enum.PartType.Ball
+    ball.Material = Enum.Material.ForceField
+    ball.Anchored = true
+    ball.CanCollide = false
+    ball.Transparency = 0.8
+    ball.Color = Color3.fromRGB(255, 255, 255)  -- Initial color (white)
+    ball.Name = "VisualizerBall"
+    ball.Parent = workspace
+    return ball
+end
+
+local visualizerBall = createVisualizerBall()
+
+-- Color Picker for changing ball color (Hex/RGB style)
+VisualizerTab:CreateColorPicker({
+    Name = "Ball Color",
+    Color = Color3.fromRGB(255, 255, 255), -- Default color (white)
+    Flag = "BallColor",
+    Callback = function(color)
+        visualizerBall.Color = color -- Change the color of the visualizer ball
+    end,
+})
+
+-- Toggle to enable/disable the visualizer
+VisualizerTab:CreateToggle({
+    Name = "Enable Visualizer",
+    CurrentValue = true,
+    Flag = "VisualizerToggle",
+    Callback = function(Value)
+        visualizerEnabled = Value
+        if not visualizerEnabled then
+            visualizerBall.Transparency = 1  -- Make the ball invisible when visualizer is off
+        else
+            visualizerBall.Transparency = 0.8  -- Make the ball visible when visualizer is on
+        end
+    end,
+})
+
+-- Function for color cycle (changes the color of the ball continuously)
+local function changeColorOverTime()
+    while visualizerEnabled do
+        visualizerBall.Color = Color3.fromRGB(math.random(0, 255), math.random(0, 255), math.random(0, 255)) -- Random color
+        wait(1) -- Wait 1 second before changing the color again
+    end
+end
+
+-- Toggle for enabling/disabling the RGB color cycle
+VisualizerTab:CreateToggle({
+    Name = "RGB Color Cycle",
+    CurrentValue = false,
+    Flag = "ColorCycleToggle",
+    Callback = function(Value)
+        if Value then
+            -- Start the color cycle when enabled
+            spawn(function()
+                changeColorOverTime()
+            end)
+        else
+            -- Stop the color cycle when disabled
+            visualizerBall.Color = Color3.fromRGB(255, 255, 255)  -- Set to default white color
+        end
+    end,
+})
+
+-- Update the position of the visualizer ball continuously
+local RunService = game:GetService("RunService")
+RunService.Heartbeat:Connect(function()
+    if visualizerEnabled and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        local totalReach = 0
+        local partCount = 0
+        for partName, reach in pairs(reachValues) do
+            if activeParts[partName] then
+                totalReach = totalReach + reach
+                partCount = partCount + 1
+            end
+        end
+        local averageReach = partCount > 0 and (totalReach / partCount) or 0
+        local root = player.Character:FindFirstChild("HumanoidRootPart")
+        if root then
+            visualizerBall.Position = root.Position
+            visualizerBall.Size = Vector3.new(averageReach * 2, averageReach * 2, averageReach * 2)
+        end
+    end
+end)
+
+-- User input connection
+local UserInputService = game:GetService("UserInputService")
+UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    if gameProcessedEvent then return end
+
+    -- Update the list of balls
+    refreshBalls(false)
+
+    -- Iterate over each active body part
+    for partName, reach in pairs(reachValues) do
+        local bodyPart = player.Character:FindFirstChild(partName)
+        if bodyPart then
+            for _, descendant in pairs(bodyPart:GetDescendants()) do
+                if descendant.Name == "TouchInterest" and descendant.Parent then
+                    for _, ball in pairs(balls) do
+                        if (ball.Position - bodyPart.Position).Magnitude < reach then
+                            firetouchinterest(ball, descendant.Parent, 0)
+                            firetouchinterest(ball, descendant.Parent, 1)
+                            break
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
