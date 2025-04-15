@@ -47,12 +47,12 @@ local ReachTab = Window:CreateTab("Reach", 4483362458)
 
 -- Tabela para armazenar os valores de alcance para cada parte do corpo
 local reachValues = {
-    ["Head"] = 5,
-    ["Right Leg"] = 5,
-    ["Left Leg"] = 5,
-    ["Right Arm"] = 5,
-    ["Left Arm"] = 5,
-    ["Torso"] = 5
+    ["Head"] = 1,
+    ["Right Leg"] = 1,
+    ["Left Leg"] = 1,
+    ["Right Arm"] = 1,
+    ["Left Arm"] = 1,
+    ["Torso"] = 1
 }
 
 -- Função para criar sliders para cada parte do corpo
@@ -124,7 +124,7 @@ local function createVisualizerBall()
     local ball = Instance.new("Part")
     ball.Size = Vector3.new(1, 1, 1)
     ball.Shape = Enum.PartType.Ball
-    ball.Material = Enum.Material.SmoothPlastic
+    ball.Material = Enum.Material.ForceField
     ball.Anchored = true
     ball.CanCollide = false
     ball.Transparency = 0.8
@@ -182,7 +182,7 @@ VisualizerTab:CreateColorPicker({
 VisualizerTab:CreateSlider({
     Name = "Transparência da Bola",
     Range = {0, 1},
-    Increment = 0.05,
+    Increment = 0.01,
     Suffix = "",
     CurrentValue = 0.8,
     Flag = "BallTransparency",
