@@ -4,7 +4,7 @@ local player = Players.LocalPlayer
 
 -- Whitelist of allowed players
 local whitelist = {
-    ["dauisfajfsg"] = true,
+    ["roblox"] = true,
     ["RIAN_ytb01"] = true,
 }
 
